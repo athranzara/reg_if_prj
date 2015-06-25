@@ -93,7 +93,7 @@ end
 initial begin
   IP_CLK = 1'b0;
   forever begin
-    IP_CLK = #5 ~ACLK;
+    IP_CLK = #5 ~IP_CLK;
   end
 end
 

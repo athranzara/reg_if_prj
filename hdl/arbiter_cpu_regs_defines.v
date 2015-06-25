@@ -57,30 +57,30 @@
 
            `define  REG_ROC_BITS				31:0
            `define  REG_ROC_WIDTH				32
-           `define  REG_ROC_DEFAULT			32'h0
+           `define  REG_ROC_DEFAULT			32'h0000abab
            `define  REG_ROC_ADDR				32'hC
            
 
            `define  REG_RWS_BITS				31:0
            `define  REG_RWS_WIDTH				32
-           `define  REG_RWS_DEFAULT			32'h0
+           `define  REG_RWS_DEFAULT			32'h5
            `define  REG_RWS_ADDR				32'h10
            
 
            `define  REG_RWCR_BITS				31:0
            `define  REG_RWCR_WIDTH				32
-           `define  REG_RWCR_DEFAULT			31'h0
+           `define  REG_RWCR_DEFAULT			31'h10
            `define  REG_RWCR_ADDR				32'h14
            
 
            `define  REG_RWCW_BITS				31:0
            `define  REG_RWCW_WIDTH				32
-           `define  REG_RWCW_DEFAULT			31'h0
+           `define  REG_RWCW_DEFAULT			31'h24
            `define  REG_RWCW_ADDR				32'h18
            
 
            `define  REG_RWA_BITS				31:0
            `define  REG_RWA_WIDTH				32
-           `define  REG_RWA_DEFAULT			32'h0
+           `define  REG_RWA_DEFAULT			32'h34
            `define  REG_RWA_ADDR				32'h1C
            

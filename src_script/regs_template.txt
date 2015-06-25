@@ -472,7 +472,9 @@ def write_logic(regsFile,regsDict):
           if (~axi_arready && S_AXI_ARVALID)\n\
             begin\n\
               // indicates that the slave has acceped the valid read address\n\
-              axi_arready <= 1\'b1;\n\
+              // user modfied here\n\
+                if (~ip2bus_fifo_empty)\n\
+                    axi_arready <= 1\'b1;\n\
               // Read address latching\n\
               axi_araddr  <= S_AXI_ARADDR ^ C_BASE_ADDRESS;\n\
             end\n\
@@ -800,9 +802,11 @@ def write_logic(regsFile,regsDict):
     regsFile.write('\n\
     always @(*)\n\
     begin\n\
-        reg_data_out = axi_rdata;\n\
-            \n\
-        case ( axi_araddr)\n\
+//        reg_data_out = axi_rdata; /* some new changes here */\n\
+        \n\
+        if (S_AXI_ARVALID) begin\n\
+        \n\
+        case ( S_AXI_ARADDR ^ C_BASE_ADDRESS )\n\
     \n');
     
     for entry in regsDict:
@@ -840,6 +844,8 @@ def write_logic(regsFile,regsDict):
             end\n\
             \n\
         endcase\n\
+        \n\
+        end\n\
     end//end of assigning data to IP2Bus_Data bus\n\
     \n');
 
@@ -888,13 +894,49 @@ def write_logic(regsFile,regsDict):
           // output the read dada \n\
           if (reg_rden)\n\
             begin\n\
-              axi_rdata <= reg_data_out;     // register read data\n\
+              axi_rdata <= ip2bus_data/*reg_data_out*/;     // register read data /* some new changes here */\n\
             end   \n\
         end\n\
     end  \n\
     \n');
 
 # end of write_logic
+
+    regsFile.write('\n\
+// synchronization stage\n\
+\n\
+// sync stage signals\n\
+    wire [C_S_AXI_DATA_WIDTH-1:0]       bus2ip_data_ip;\n\
+    wire [C_S_AXI_DATA_WIDTH-1:0]       ip2bus_data;\n\
+    wire bus2ip_rden;\n\
+    wire ip2bus_fifo_empty;\n\
+\n\
+    assign  bus2ip_rden = reg_rden;\n\
+\n\
+    cpu_sync #(\n\
+        .C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),\n\
+        .C_S_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH)\n\
+    )cpu_sync_inst\n\
+        (\n\
+        .S_AXI_ARVALID(S_AXI_ARVALID),\n\
+        .bus2ip_rden(bus2ip_rden),\n\
+        .ip2bus_fifo_empty(ip2bus_fifo_empty),\n\
+        //ip clock domain\n\
+        .clk(clk),\n\
+        .resetn(resetn_sync),\n\
+        \n\
+        .bus2ip_data_ip(bus2ip_data_ip),\n\
+        .ip2bus_data_ip(reg_data_out),\n\
+\n\
+        // axi clock domain\n\
+        .AXI_ACLK(S_AXI_ACLK),\n\
+        .Bus2IP_Resetn(S_AXI_ARESETN),\n\
+\n\
+        .bus2ip_data(S_AXI_WDATA),\n\
+        .axi_wstrb(S_AXI_WSTRB),\n\
+        .ip2bus_data(ip2bus_data)\n\
+        );\n\
+    \n');
 
 
 ##################################################################

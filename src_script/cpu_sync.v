@@ -42,8 +42,6 @@
 //
 
 
-`include "arbiter_cpu_regs_defines.v"
-
 module cpu_sync 
 #(
     parameter C_S_AXI_DATA_WIDTH    = 32,          
