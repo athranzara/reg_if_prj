@@ -274,9 +274,10 @@ parameter C_S_AXI_ADDR_WIDTH    = 32
             begin
               // indicates that the slave has acceped the valid read address
               // user modfied here
-                if (~ip2bus_fifo_empty)
-                    axi_arready <= 1'b1;
+//                if (~ip2bus_fifo_empty)
+//                    axi_arready <= 1'b1;
               // Read address latching
+              axi_arready <= 1'b1;
               axi_araddr  <= S_AXI_ARADDR ^ C_BASE_ADDRESS;
             end
           else
@@ -476,9 +477,9 @@ parameter C_S_AXI_ADDR_WIDTH    = 32
     begin
 //        reg_data_out = axi_rdata; /* some new changes here */
         
-        if (S_AXI_ARVALID) begin
+//        if (S_AXI_ARVALID) begin
         
-        case ( S_AXI_ARADDR ^ C_BASE_ADDRESS )
+        case ( axi_araddr /*S_AXI_ARADDR ^ C_BASE_ADDRESS*/)
     
             //Ro Register
             `REG_RO_ADDR : begin
@@ -511,7 +512,7 @@ parameter C_S_AXI_ADDR_WIDTH    = 32
             
         endcase
         
-        end
+//        end
     end//end of assigning data to IP2Bus_Data bus
     
 
@@ -542,44 +543,44 @@ parameter C_S_AXI_ADDR_WIDTH    = 32
           // output the read dada 
           if (reg_rden)
             begin
-              axi_rdata <= ip2bus_data/*reg_data_out*/;     // register read data /* some new changes here */
+              axi_rdata <= reg_data_out/*ip2bus_data*/;     // register read data /* some new changes here */
             end   
         end
     end  
     
 
-// synchronization stage
+//// synchronization stage
 
-// sync stage signals
-    wire [C_S_AXI_DATA_WIDTH-1:0]       bus2ip_data_ip;
-    wire [C_S_AXI_DATA_WIDTH-1:0]       ip2bus_data;
-    wire bus2ip_rden;
-    wire ip2bus_fifo_empty;
+//// sync stage signals
+//    wire [C_S_AXI_DATA_WIDTH-1:0]       bus2ip_data_ip;
+//    wire [C_S_AXI_DATA_WIDTH-1:0]       ip2bus_data;
+//    wire bus2ip_rden;
+//    wire ip2bus_fifo_empty;
 
-    assign  bus2ip_rden = reg_rden;
+//    assign  bus2ip_rden = reg_rden;
 
-    cpu_sync #(
-        .C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
-        .C_S_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH)
-    )cpu_sync_inst
-        (
-        .S_AXI_ARVALID(S_AXI_ARVALID),
-        .bus2ip_rden(bus2ip_rden),
-        .ip2bus_fifo_empty(ip2bus_fifo_empty),
-        //ip clock domain
-        .clk(clk),
-        .resetn(resetn_sync),
+//    cpu_sync #(
+//        .C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),
+//        .C_S_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH)
+//    )cpu_sync_inst
+//        (
+//        .S_AXI_ARVALID(S_AXI_ARVALID),
+//        .bus2ip_rden(bus2ip_rden),
+//        .ip2bus_fifo_empty(ip2bus_fifo_empty),
+//        //ip clock domain
+//        .clk(clk),
+//        .resetn(resetn_sync),
         
-        .bus2ip_data_ip(bus2ip_data_ip),
-        .ip2bus_data_ip(reg_data_out),
+//        .bus2ip_data_ip(bus2ip_data_ip),
+//        .ip2bus_data_ip(reg_data_out),
 
-        // axi clock domain
-        .AXI_ACLK(S_AXI_ACLK),
-        .Bus2IP_Resetn(S_AXI_ARESETN),
+//        // axi clock domain
+//        .AXI_ACLK(S_AXI_ACLK),
+//        .Bus2IP_Resetn(S_AXI_ARESETN),
 
-        .bus2ip_data(S_AXI_WDATA),
-        .axi_wstrb(S_AXI_WSTRB),
-        .ip2bus_data(ip2bus_data)
-        );
+//        .bus2ip_data(S_AXI_WDATA),
+//        .axi_wstrb(S_AXI_WSTRB),
+//        .ip2bus_data(ip2bus_data)
+//        );
     
 endmodule

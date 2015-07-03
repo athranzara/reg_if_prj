@@ -45,7 +45,7 @@ wire     [`REG_RWA_BITS]   read_cpu2ip_rwa_reg;
 top_module top_module_inst(
     .ACLK(ACLK),
     .ARESETN(ARESETN),
-    .IP_CLK(IP_CLK),
+    .IP_CLK(ACLK/*IP_CLK*/),
     .read_AXI_ARADDR(read_AXI_ARADDR),
     .read_AXI_ARREADY(read_AXI_ARREADY),
     .read_AXI_ARVALID(read_AXI_ARVALID),
