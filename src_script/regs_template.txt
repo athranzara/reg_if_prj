@@ -1,3 +1,32 @@
+#
+# Copyright (c) 2015 University of Cambridge
+# All rights reserved.
+#
+# This software was developed by the University of Cambridge Computer Laboratory 
+# under EPSRC INTERNET Project EP/H040536/1, National Science Foundation under Grant No. CNS-0855268,
+# and Defense Advanced Research Projects Agency (DARPA) and Air Force Research Laboratory (AFRL), 
+# under contract FA8750-11-C-0249.
+#
+# Author: Jingyun Zhang
+#
+# @NETFPGA_LICENSE_HEADER_START@
+#
+# Licensed to NetFPGA Open Systems C.I.C. (NetFPGA) under one or more contributor
+# license agreements.  See the NOTICE file distributed with this work for
+# additional information regarding copyright ownership.  NetFPGA licenses this
+# file to you under the NetFPGA Hardware-Software License, Version 1.0 (the
+# "License"); you may not use this file except in compliance with the
+# License.  You may obtain a copy of the License at:
+#
+#   http://www.netfpga-cic.org
+#
+# Unless required by applicable law or agreed to in writing, Work distributed
+# under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR
+# CONDITIONS OF ANY KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations under the License.
+#
+# @NETFPGA_LICENSE_HEADER_END@
+#
 
 ##################################################################
 # a function that writes the header of regs file
@@ -25,14 +54,14 @@ def write_regs_header(regsFile):
 //\n\
 // @NETFPGA_LICENSE_HEADER_START@\n\
 //\n\
-// Licensed to NetFPGA Open Systems C.I.C. (NetFPGA) under one or more contributor\n\
+// Licensed to NetFPGA C.I.C. (NetFPGA) under one or more contributor\n\
 // license agreements.  See the NOTICE file distributed with this work for\n\
 // additional information regarding copyright ownership.  NetFPGA licenses this\n\
 // file to you under the NetFPGA Hardware-Software License, Version 1.0 (the\n\
 // "License"); you may not use this file except in compliance with the\n\
 // License.  You may obtain a copy of the License at:\n\
 //\n\
-//   http://www.<future link here>\n\
+//   http://netfpga-cic.org\n\
 //\n\
 // Unless required by applicable law or agreed to in writing, Work distributed\n\
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR\n\
@@ -71,14 +100,14 @@ def write_defs_header(defsFile):
 //\n\
 // @NETFPGA_LICENSE_HEADER_START@\n\
 //\n\
-// Licensed to NetFPGA Open Systems C.I.C. (NetFPGA) under one or more contributor\n\
+// Licensed to NetFPGA C.I.C. (NetFPGA) under one or more contributor\n\
 // license agreements.  See the NOTICE file distributed with this work for\n\
 // additional information regarding copyright ownership.  NetFPGA licenses this\n\
 // file to you under the NetFPGA Hardware-Software License, Version 1.0 (the\n\
 // "License"); you may not use this file except in compliance with the\n\
 // License.  You may obtain a copy of the License at:\n\
 //\n\
-//   http://www.<future link here>\n\
+//   http://netfpga-cic.org\n\
 //\n\
 // Unless required by applicable law or agreed to in writing, Work distributed\n\
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR\n\
@@ -116,14 +145,14 @@ def write_tcl_header(tclFile):
 #\n\
 # @NETFPGA_LICENSE_HEADER_START@\n\
 #\n\
-# Licensed to NetFPGA Open Systems C.I.C. (NetFPGA) under one or more contributor\n\
+# Licensed to NetFPGA C.I.C. (NetFPGA) under one or more contributor\n\
 # license agreements.  See the NOTICE file distributed with this work for\n\
 # additional information regarding copyright ownership.  NetFPGA licenses this\n\
 # file to you under the NetFPGA Hardware-Software License, Version 1.0 (the\n\
 # "License"); you may not use this file except in compliance with the\n\
 # License.  You may obtain a copy of the License at:\n\
 #\n\
-#   http://www.<future link here>\n\
+#   http://netfpga-cic.org\n\
 #\n\
 # Unless required by applicable law or agreed to in writing, Work distributed\n\
 # under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR\n\
@@ -161,14 +190,14 @@ def write_hFile_header(hFile):
 //\n\
 // @NETFPGA_LICENSE_HEADER_START@\n\
 //\n\
-// Licensed to NetFPGA Open Systems C.I.C. (NetFPGA) under one or more contributor\n\
+// Licensed to NetFPGA C.I.C. (NetFPGA) under one or more contributor\n\
 // license agreements.  See the NOTICE file distributed with this work for\n\
 // additional information regarding copyright ownership.  NetFPGA licenses this\n\
 // file to you under the NetFPGA Hardware-Software License, Version 1.0 (the\n\
 // "License"); you may not use this file except in compliance with the\n\
 // License.  You may obtain a copy of the License at:\n\
 //\n\
-//   http://www.<future link here>\n\
+//   http://netfpga-cic.org\n\
 //\n\
 // Unless required by applicable law or agreed to in writing, Work distributed\n\
 // under the License is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR\n\
@@ -269,6 +298,7 @@ def write_regs_wires(regsFile,regsDict):
     reg                                 axi_bvalid;\n\
     reg [C_S_AXI_ADDR_WIDTH-1 : 0]      axi_araddr;\n\
     reg                                 axi_arready;\n\
+    reg                                 axi_arvalid;\n\
     reg [C_S_AXI_DATA_WIDTH-1 : 0]      axi_rdata;\n\
     reg [1 : 0]                         axi_rresp;\n\
     reg                                 axi_rvalid;\n\
@@ -279,10 +309,15 @@ def write_regs_wires(regsFile,regsDict):
     reg [C_S_AXI_DATA_WIDTH-1:0]        reg_data_out;\n\
     reg [C_S_AXI_DATA_WIDTH-1:0]        s_axi_wstrb_bit;\n\
     integer                             bit_index;\n');
-   
+
+    for entry in regsDict:
+        if entry['endian']=='big' :
+            regsFile.write('    integer                             bytes;\n');
+
+
     for entry in regsDict:
         if entry['type']=="RWCW" :
-            regsFile.write('    reg                                             cpu2ip_'+entry['name']+'_reg_clear_d;\n')
+            regsFile.write('    reg                                 cpu2ip_'+entry['name']+'_reg_clear_d;\n')
 
     regsFile.write('\n\
     // I/O Connections assignments \n\
@@ -472,10 +507,8 @@ def write_logic(regsFile,regsDict):
           if (~axi_arready && S_AXI_ARVALID)\n\
             begin\n\
               // indicates that the slave has acceped the valid read address\n\
-              // user modfied here\n\
-                if (~ip2bus_fifo_empty)\n\
-                    axi_arready <= 1\'b1;\n\
               // Read address latching\n\
+              axi_arready <= 1\'b1;\n\
               axi_araddr  <= S_AXI_ARADDR ^ C_BASE_ADDRESS;\n\
             end\n\
           else\n\
@@ -484,6 +517,21 @@ def write_logic(regsFile,regsDict):
             end\n\
         end \n\
     end       \n\
+\n\
+\n\
+    // Implement axi_arvalid generation\n\
+//    always @( posedge S_AXI_ACLK )\n\
+//    begin\n\
+//      if ( S_AXI_ARESETN == 1\'b0 )\n\
+//        begin \n\
+//          axi_arvalid <= 0;\n\
+//        end \n\
+//      else\n\
+//        begin\n\
+//           axi_arvalid <= S_AXI_ARVALID;\n\
+//        end\n\
+//    end\n\
+\n\
 \n\
     // Implement axi_arvalid generation\n\
     // axi_rvalid is asserted for one S_AXI_ACLK clock cycle when both \n\
@@ -557,11 +605,20 @@ def write_logic(regsFile,regsDict):
 
     for entry in regsDict:
         if entry['type']=="WO" :
-            regsFile.write('                //'+entry['name'].capitalize()+' Register\n\
+            if entry['endian']=="little" :
+                regsFile.write('                //'+entry['name'].capitalize()+' Register\n\
                     `REG_'+entry['name'].upper()+'_ADDR : begin\n\
                             for ( bit_index = 0; bit_index <= (`REG_'+entry['name'].upper()+'_WIDTH-1); bit_index = bit_index +1)\n\
                                 if (s_axi_wstrb_bit[bit_index] == 1) begin\n\
                                     '+entry['name']+'_reg[bit_index] <=  S_AXI_WDATA[bit_index];\n\
+                                end\n\
+                    end\n');
+            if entry['endian']=="big" :
+                regsFile.write('                //'+entry['name'].capitalize()+' Register\n\
+                    `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                            for (bytes = 0; bytes <= (`REG_'+entry['name'].upper()+'_WIDTH/8-1); bytes = bytes +1)\n\
+                                if (S_AXI_WSTRB[bytes] == 1) begin\n\
+                                    '+entry['name']+'_reg[(C_S_AXI_DATA_WIDTH/8-bytes-1)*8 +: 8] <= S_AXI_WDATA[bytes*8 +: 8]; //dynamic register;\n\
                                 end\n\
                     end\n');
 
@@ -595,14 +652,24 @@ def write_logic(regsFile,regsDict):
 
     for entry in regsDict:
         if entry['type']=="WOE" :
-            regsFile.write('\
-                //'+entry['name'].capitalize()+' Register\n\
-                    `REG_'+entry['name'].upper()+'_ADDR : begin\n\
-                            for ( bit_index = 0; bit_index <= (`REG_'+entry['name'].upper()+'_WIDTH-1); bit_index = bit_index +1)\n\
-                                if (s_axi_wstrb_bit[bit_index] == 1) begin\n\
-                                    '+entry['name']+'_reg[bit_index] <=  S_AXI_WDATA[bit_index];\n\
-                                end\n\
-                    end\n');
+            if entry['endian']=="little" :
+                regsFile.write('\
+                    //'+entry['name'].capitalize()+' Register\n\
+                        `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                                for ( bit_index = 0; bit_index <= (`REG_'+entry['name'].upper()+'_WIDTH-1); bit_index = bit_index +1)\n\
+                                    if (s_axi_wstrb_bit[bit_index] == 1) begin\n\
+                                        '+entry['name']+'_reg[bit_index] <=  S_AXI_WDATA[bit_index];\n\
+                                    end\n\
+                        end\n');
+            if entry['endian']=="big" :
+                regsFile.write('\
+                    //'+entry['name'].capitalize()+' Register\n\
+                        `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                                for (bytes = 0; bytes <= (`REG_'+entry['name'].upper()+'_WIDTH/8-1); bytes = bytes +1)\n\
+                                    if (S_AXI_WSTRB[bytes] == 1) begin\n\
+                                        '+entry['name']+'_reg[(C_S_AXI_DATA_WIDTH/8-bytes-1)*8 +: 8] <= S_AXI_WDATA[bytes*8 +: 8]; //dynamic register;\n\
+                                    end\n\
+                        end\n');
 
     if not(first_item):
          regsFile.write('                endcase\n\
@@ -639,7 +706,8 @@ def write_logic(regsFile,regsDict):
 
     for entry in regsDict:
         if entry['type']=="RWS" :
-            regsFile.write('\
+            if entry['endian']=="little" :
+                regsFile.write('\
             //'+entry['name'].capitalize()+' Register\n\
                 `REG_'+entry['name'].upper()+'_ADDR : begin\n\
                         for ( bit_index = 0; bit_index <= (`REG_'+entry['name'].upper()+'_WIDTH-1); bit_index = bit_index +1)\n\
@@ -647,8 +715,19 @@ def write_logic(regsFile,regsDict):
                                 '+entry['name']+'_reg[bit_index] <=  S_AXI_WDATA[bit_index]; //static register;\n\
                             end\n\
                 end\n');
+            if entry['endian']=="big" :
+                regsFile.write('\
+            //'+entry['name'].capitalize()+' Register\n\
+                `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                        for (bytes = 0; bytes <= (`REG_'+entry['name'].upper()+'_WIDTH/8-1); bytes = bytes +1)\n\
+                            if (S_AXI_WSTRB[bytes] == 1) begin\n\
+                                '+entry['name']+'_reg[(C_S_AXI_DATA_WIDTH/8-bytes-1)*8 +: 8] <= S_AXI_WDATA[bytes*8 +: 8]; //dynamic register;\n\
+                            end\n\
+                end\n');
+                
         if entry['type']=="RWA" :
-            regsFile.write('\
+            if entry['endian']=="little" :
+                regsFile.write('\
             //'+entry['name'].capitalize()+' Register\n\
                 `REG_'+entry['name'].upper()+'_ADDR : begin\n\
                         for ( bit_index = 0; bit_index <= (`REG_'+entry['name'].upper()+'_WIDTH-1); bit_index = bit_index +1)\n\
@@ -656,6 +735,16 @@ def write_logic(regsFile,regsDict):
                                 cpu2ip_'+entry['name']+'_reg[bit_index] <=  S_AXI_WDATA[bit_index]; //dynamic register;\n\
                             end\n\
                 end\n');
+            if entry['endian']=="big" :
+                regsFile.write('\
+            //'+entry['name'].capitalize()+' Register\n\
+                `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                        for (bytes = 0; bytes <= (`REG_'+entry['name'].upper()+'_WIDTH/8-1); bytes = bytes +1)\n\
+                            if (S_AXI_WSTRB[bytes] == 1) begin\n\
+                                cpu2ip_'+entry['name']+'_reg[(C_S_AXI_DATA_WIDTH/8-bytes-1)*8 +: 8] <= S_AXI_WDATA[bytes*8 +: 8]; //dynamic register;\n\
+                            end\n\
+                end\n');
+
 
     if not (first_item):
         regsFile.write('\
@@ -691,14 +780,24 @@ def write_logic(regsFile,regsDict):
 
     for entry in regsDict:
         if entry['type']=="RWCR" :
-            regsFile.write('\
-                //'+entry['name'].capitalize()+' Register\n\
-                `REG_'+entry['name'].upper()+'_ADDR : begin\n\
-                        for ( bit_index = 0; bit_index <= (`REG_'+entry['name'].upper()+'_WIDTH-1); bit_index = bit_index +1)\n\
-                            if (s_axi_wstrb_bit[bit_index] == 1) begin\n\
-                                cpu2ip_'+entry['name']+'_reg[bit_index] <=  S_AXI_WDATA[bit_index];\n\
-                            end\n\
-                end\n');
+            if entry['endian']=="little" :
+                regsFile.write('\
+                    //'+entry['name'].capitalize()+' Register\n\
+                    `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                            for ( bit_index = 0; bit_index <= (`REG_'+entry['name'].upper()+'_WIDTH-1); bit_index = bit_index +1)\n\
+                                if (s_axi_wstrb_bit[bit_index] == 1) begin\n\
+                                    cpu2ip_'+entry['name']+'_reg[bit_index] <=  S_AXI_WDATA[bit_index];\n\
+                                end\n\
+                    end\n');
+            if entry['endian']=="big" :
+                regsFile.write('\
+                    //'+entry['name'].capitalize()+' Register\n\
+                    `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                            for (bytes = 0; bytes <= (`REG_'+entry['name'].upper()+'_WIDTH/8-1); bytes = bytes +1)\n\
+                                if (S_AXI_WSTRB[bytes] == 1) begin\n\
+                                    cpu2ip_'+entry['name']+'_reg[(C_S_AXI_DATA_WIDTH/8-bytes-1)*8 +: 8] <= S_AXI_WDATA[bytes*8 +: 8]; //dynamic register;\n\
+                                end\n\
+                    end\n');
 
     if not(first_item):
         regsFile.write('\
@@ -767,16 +866,26 @@ def write_logic(regsFile,regsDict):
 
     for entry in regsDict:
         if entry['type']=="RWCW" :
-            regsFile.write('\
+            if entry['endian']=="little" :
+                regsFile.write('\
                 if (axi_awaddr==`REG_'+entry['name'].upper()+'_ADDR) begin\n\
                     for ( bit_index = 0; bit_index <= (`REG_'+entry['name'].upper()+'_WIDTH-1); bit_index = bit_index+1 )\n\
                         if ( s_axi_wstrb_bit[bit_index] == 1 ) begin\n\
                             cpu2ip_'+entry['name']+'_reg[bit_index] <=  S_AXI_WDATA[bit_index];\n\
                         end\n\
                 end\n');
+            if entry['endian']=="big" :
+                regsFile.write('\
+                if (axi_awaddr==`REG_'+entry['name'].upper()+'_ADDR) begin\n\
+                    for (bytes = 0; bytes <= (`REG_'+entry['name'].upper()+'_WIDTH/8-1); bytes = bytes +1)\n\
+                        if (S_AXI_WSTRB[bytes] == 1) begin\n\
+                            cpu2ip_'+entry['name']+'_reg[(C_S_AXI_DATA_WIDTH/8-bytes-1)*8 +: 8] <= S_AXI_WDATA[bytes*8 +: 8]; //dynamic register;\n\
+                        end\n\
+                end\n');
 
     if not(first_item):
-        regsFile.write('            end\n\
+        regsFile.write('\
+            end\n\
         end\n\
     end\n');
 
@@ -804,17 +913,25 @@ def write_logic(regsFile,regsDict):
     begin\n\
 //        reg_data_out = axi_rdata; /* some new changes here */\n\
         \n\
-        if (S_AXI_ARVALID) begin\n\
+//        if (S_AXI_ARVALID) begin\n\
         \n\
-        case ( S_AXI_ARADDR ^ C_BASE_ADDRESS )\n\
+        case ( axi_araddr /*S_AXI_ARADDR ^ C_BASE_ADDRESS*/)\n\
     \n');
     
     for entry in regsDict:
         if  entry['type']=="RO" or entry['type']=="ROC" or entry['type']=="RWS":
-            regsFile.write('\
+            if entry['endian']=="little" :
+                regsFile.write('\
             //'+entry['name'].capitalize()+' Register\n\
             `REG_'+entry['name'].upper()+'_ADDR : begin\n\
                 reg_data_out [`REG_'+entry['name'].upper()+'_BITS] =  '+entry['name']+'_reg;\n');
+                
+            if entry['endian']=="big" :
+                regsFile.write('\
+            //'+entry['name'].capitalize()+' Register\n\
+            `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                for (bytes = 0; bytes <= (`REG_'+entry['name'].upper()+'_WIDTH/8-1); bytes = bytes +1)\n\
+                    reg_data_out [(C_S_AXI_DATA_WIDTH/8-bytes-1)*8 +: 8] = '+entry['name']+'_reg[bytes*8 +: 8];\n');
 
             if int(entry['width'])<32:
                 regsFile.write('\
@@ -825,10 +942,18 @@ def write_logic(regsFile,regsDict):
             end\n');
         
         if entry['type']=="RWCW" or entry['type']=="RWA" or entry['type']=="RWCR":
-            regsFile.write('\
+            if entry['endian']=="little" :
+                regsFile.write('\
             //'+entry['name'].capitalize()+' Register\n\
             `REG_'+entry['name'].upper()+'_ADDR : begin\n\
                 reg_data_out [`REG_'+entry['name'].upper()+'_BITS] =  ip2cpu_'+entry['name']+'_reg;\n');
+                
+            if entry['endian']=="big" :
+                regsFile.write('\
+            //'+entry['name'].capitalize()+' Register\n\
+            `REG_'+entry['name'].upper()+'_ADDR : begin\n\
+                for (bytes = 0; bytes <= (`REG_'+entry['name'].upper()+'_WIDTH/8-1); bytes = bytes +1)\n\
+                    reg_data_out [(C_S_AXI_DATA_WIDTH/8-bytes-1)*8 +: 8] = ip2cpu_'+entry['name']+'_reg[bytes*8 +: 8];\n');
             
             if int(entry['width']) < 32 :
                 regsFile.write('\
@@ -845,7 +970,7 @@ def write_logic(regsFile,regsDict):
             \n\
         endcase\n\
         \n\
-        end\n\
+//        end\n\
     end//end of assigning data to IP2Bus_Data bus\n\
     \n');
 
@@ -894,7 +1019,7 @@ def write_logic(regsFile,regsDict):
           // output the read dada \n\
           if (reg_rden)\n\
             begin\n\
-              axi_rdata <= ip2bus_data/*reg_data_out*/;     // register read data /* some new changes here */\n\
+              axi_rdata <= reg_data_out/*ip2bus_data*/;     // register read data /* some new changes here */\n\
             end   \n\
         end\n\
     end  \n\
@@ -903,39 +1028,39 @@ def write_logic(regsFile,regsDict):
 # end of write_logic
 
     regsFile.write('\n\
-// synchronization stage\n\
+//// synchronization stage\n\
 \n\
-// sync stage signals\n\
-    wire [C_S_AXI_DATA_WIDTH-1:0]       bus2ip_data_ip;\n\
-    wire [C_S_AXI_DATA_WIDTH-1:0]       ip2bus_data;\n\
-    wire bus2ip_rden;\n\
-    wire ip2bus_fifo_empty;\n\
+//// sync stage signals\n\
+//    wire [C_S_AXI_DATA_WIDTH-1:0]       bus2ip_data_ip;\n\
+//    wire [C_S_AXI_DATA_WIDTH-1:0]       ip2bus_data;\n\
+//    wire bus2ip_rden;\n\
+//    wire ip2bus_fifo_empty;\n\
 \n\
-    assign  bus2ip_rden = reg_rden;\n\
+//    assign  bus2ip_rden = reg_rden;\n\
 \n\
-    cpu_sync #(\n\
-        .C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),\n\
-        .C_S_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH)\n\
-    )cpu_sync_inst\n\
-        (\n\
-        .S_AXI_ARVALID(S_AXI_ARVALID),\n\
-        .bus2ip_rden(bus2ip_rden),\n\
-        .ip2bus_fifo_empty(ip2bus_fifo_empty),\n\
-        //ip clock domain\n\
-        .clk(clk),\n\
-        .resetn(resetn_sync),\n\
+//    cpu_sync #(\n\
+//        .C_S_AXI_DATA_WIDTH(C_S_AXI_DATA_WIDTH),\n\
+//        .C_S_AXI_ADDR_WIDTH(C_S_AXI_ADDR_WIDTH)\n\
+//    )cpu_sync_inst\n\
+//        (\n\
+//        .S_AXI_ARVALID(S_AXI_ARVALID),\n\
+//        .bus2ip_rden(bus2ip_rden),\n\
+//        .ip2bus_fifo_empty(ip2bus_fifo_empty),\n\
+//        //ip clock domain\n\
+//        .clk(clk),\n\
+//        .resetn(resetn_sync),\n\
         \n\
-        .bus2ip_data_ip(bus2ip_data_ip),\n\
-        .ip2bus_data_ip(reg_data_out),\n\
+//        .bus2ip_data_ip(bus2ip_data_ip),\n\
+//        .ip2bus_data_ip(reg_data_out),\n\
 \n\
-        // axi clock domain\n\
-        .AXI_ACLK(S_AXI_ACLK),\n\
-        .Bus2IP_Resetn(S_AXI_ARESETN),\n\
+//        // axi clock domain\n\
+//        .AXI_ACLK(S_AXI_ACLK),\n\
+//        .Bus2IP_Resetn(S_AXI_ARESETN),\n\
 \n\
-        .bus2ip_data(S_AXI_WDATA),\n\
-        .axi_wstrb(S_AXI_WSTRB),\n\
-        .ip2bus_data(ip2bus_data)\n\
-        );\n\
+//        .bus2ip_data(S_AXI_WDATA),\n\
+//        .axi_wstrb(S_AXI_WSTRB),\n\
+//        .ip2bus_data(ip2bus_data)\n\
+//        );\n\
     \n');
 
 
@@ -964,9 +1089,9 @@ def write_h(hFile,regsDict):
    #Registers offset definitions\n\n');
    
    for entry in regsDict:
-      hFile.write('#define XPAR_'+block_name+'_'+entry['name'].upper()+'_0_OFFSET 0x'+entry['addr'].lstrip('32\'h')+'\n');
-      hFile.write('#define XPAR_'+block_name+'_'+entry['name'].upper()+'_0_DEFAULT 0x'+entry['default'].lstrip('32\'h')+'\n');
-      hFile.write('#define XPAR_'+block_name+'_'+entry['name'].upper()+'_0_WIDTH '+entry['width']+'\n');
+      hFile.write('#define SUME_'+block_name+'_'+entry['name'].upper()+'_0_OFFSET 0x'+entry['addr'][4:]+'\n');
+      hFile.write('#define SUME_'+block_name+'_'+entry['name'].upper()+'_0_DEFAULT 0x'+entry['default'][4:]+'\n');
+      hFile.write('#define SUME_'+block_name+'_'+entry['name'].upper()+'_0_WIDTH '+entry['width']+'\n');
 
 #end of write_h
 
@@ -976,8 +1101,8 @@ def write_h(hFile,regsDict):
 def write_tcl(tclFile,regsDict):
 
    for entry in regsDict:
-     tclFile.write('set '+block_name+'_REGS_'+entry['name'].upper()+'_0_OFFSET 0x'+entry['addr'].lstrip('32\'h')+'\n');
-     tclFile.write('set '+block_name+'_REGS_'+entry['name'].upper()+'_0_DEFAULT 0x'+entry['default'].lstrip('32\'h')+'\n');
+     tclFile.write('set '+block_name+'_REGS_'+entry['name'].upper()+'_0_OFFSET 0x'+entry['addr'][4:]+'\n');
+     tclFile.write('set '+block_name+'_REGS_'+entry['name'].upper()+'_0_DEFAULT 0x'+entry['default'][4:]+'\n');
      tclFile.write('set '+block_name+'_REGS_'+entry['name'].upper()+'_0_WIDTH '+entry['width']+'\n');
 
 
